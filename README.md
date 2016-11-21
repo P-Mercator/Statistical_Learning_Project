@@ -32,3 +32,6 @@ Analyse an interesting problem with the help of techniques presented in the cour
 - Sergio Gámez Ruiz de Olano
 - Mohammadmehdi Fayazbakhsh
 - Pierre Mercatoris
+
+## Slack channel
+[slack_link] (https://statlearningteam.slack.com/)
