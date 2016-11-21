@@ -23,10 +23,15 @@ Analyse an interesting problem with the help of techniques presented in the cour
 [Link](https://www.kaggle.com/worldbank/world-development-indicators/version/1)
 - Uber Pickups in New York City
 [Link](https://www.kaggle.com/five-thirty-eight/uber-pickups-in-new-york-city)
+- Hand gestures
+[Link] (http://www.idiap.ch/resource/gestures/)
 
 ## Members
 
 - Pablo Bordons Estrada
-- Sergio Gamez
+- Sergio Gámez Ruiz de Olano
 - Mohammadmehdi Fayazbakhsh
 - Pierre Mercatoris
+
+## Slack channel
+[slack_link] (https://statlearningteam.slack.com/)
