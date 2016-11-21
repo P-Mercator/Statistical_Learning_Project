@@ -27,6 +27,6 @@ Analyse an interesting problem with the help of techniques presented in the cour
 ## Members
 
 - Pablo Bordons Estrada
-- Sergio Ramez
+- Sergio Gamez
 - Mohammadmehdi Fayazbakhsh
 - Pierre Mercatoris
