@@ -1,7 +1,6 @@
 #In order to run the script, you need to set the working directory
 #In a folder with a subfolder called Data, which has a subfolder
 #with the uncompressed images
-setwd("C:\\Users\\ax30201\\Documents\\Master\\S_Learning")
 
 require(data.table)
 require(pixmap)
