@@ -81,3 +81,13 @@ for(i in 2:200){
 template=template/200
 
 as.cimg(t(template)) %>% plot()
+
+
+#template of all images
+template=grey_images[[1]]
+for(i in 2:length(grey_images)){
+  template=template+grey_images[[i]]
+}
+template=template/length(grey_images)
+
+as.cimg(t(template)) %>% plot()
