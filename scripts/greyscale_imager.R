@@ -17,6 +17,8 @@ library(imager)
 path_folders="./Data/Marcel-Train"
 folders=list.files(path = path_folders)
 
+folders=folders[folders!="Five"] #the five is quite broken
+
 labels=c()
 images=c()
 grey_images=list()
@@ -24,6 +26,7 @@ vectors=list()
 idx=1
 
 #there are 84x72, 82x70 and 76x66 images -> we will crop them
+#update: there are also 64x56 images <- new cropped size
 
 for (folder in folders)
 {
@@ -35,16 +38,21 @@ for (folder in folders)
     
     grey_image=0.299*image@red + 0.587*image@green + 0.114*image@blue
     
+    x_range=1:dim(grey_image)[1]
+    y_range=1:dim(grey_image)[2]
+    
     #crop to 76x66
-    if(dim(grey_image)[1]>76){
-      gap_x=dim(grey_image)[1]-76
-      gap_y=dim(grey_image)[2]-66
-      
+    if(dim(grey_image)[1]>64){
+      gap_x=dim(grey_image)[1]-64
       x_range=gap_x:dim(grey_image)[1]-gap_x
-      y_range=gap_y:dim(grey_image)[2]-gap_y
-      
-      grey_image=grey_image[x_range,y_range]
     }
+    
+    if(dim(grey_image)[2]>56){
+      gap_y=dim(grey_image)[2]-56
+      y_range=gap_y:dim(grey_image)[2]-gap_y
+    }
+    
+    grey_image=grey_image[x_range,y_range]
     
     grey_images[[idx]]=grey_image
     vectors[[idx]]=as.vector(grey_image)
@@ -54,6 +62,19 @@ for (folder in folders)
 }
 
 matrix_version=as.matrix(vectors)
+
+for (i in 1:dim(matrix_version)[1]){
+  aux=matrix_version[[i]]
+  aux_dt=as.data.table(t(aux))
+  if (i==1){
+    dt=aux_dt
+  }
+  else{
+    dt=rbind(dt,aux_dt)
+  }
+}
+
+save(list=c("images","vectors","labels","dt"),file="img_vec_lab.Rdata")
 
 foo=as.cimg(t(grey_image))
 plot(foo)
