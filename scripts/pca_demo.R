@@ -53,5 +53,18 @@ foo[test_idx,prediction:=predict(im_rf, foo[test_idx])]
 foo[test_idx][,sum(label!=prediction)/.N]
 #error prediction, arrond 15%ish
 
+#same test with SVM
+library(e1071)
+
+im_svm=svm(as.factor(label) ~ V1 + V2 + V3 + V4 + V5 + V6 +
+      V7 + V8 + V9 + V10 + V11 + V12 + V13 + V14 + V15,data=foo[train_idx], scale = TRUE, type = NULL, kernel ="radial")
+
+svm_pred=predict(im_svm, foo[test_idx], decision.values = TRUE)
+
+foo[test_idx,prediction:=svm_pred]
+foo[test_idx][,sum(label!=prediction)/.N]
+
+#SVM performs slightly worse with default hyper parameters
+
 #this will come later :)
 #tsne_out=tsne(dt)
