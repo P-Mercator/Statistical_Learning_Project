@@ -22,7 +22,9 @@ folders=folders[folders!="Five"] #the five is quite broken
 labels=c()
 images=c()
 grey_images=list()
+im_gradients=list()
 vectors=list()
+vectors_grad=list()
 idx=1
 
 #there are 84x72, 82x70 and 76x66 images -> we will crop them
@@ -54,27 +56,36 @@ for (folder in folders)
     
     grey_image=grey_image[x_range,y_range]
     
+    img_grad=imgradient(as.cimg(grey_image),"xy")
+    
     grey_images[[idx]]=grey_image
+    im_gradients[[idx]]=as.matrix(sqrt(img_grad$x^2+img_grad$y^2))
     vectors[[idx]]=as.vector(grey_image)
+    vectors_grad[[idx]]=as.vector(im_gradients[[idx]])
     idx=idx+1
     labels=c(labels,folder)
   }
 }
 
 matrix_version=as.matrix(vectors)
+matrix_version_grad=as.matrix(vectors_grad)
 
 for (i in 1:dim(matrix_version)[1]){
   aux=matrix_version[[i]]
   aux_dt=as.data.table(t(aux))
+  aux_grad=matrix_version_grad[[i]]
+  aux_grad_dt=as.data.table(t(aux_grad))
   if (i==1){
     dt=aux_dt
+    dt_grad=aux_grad_dt
   }
   else{
     dt=rbind(dt,aux_dt)
+    dt_grad=rbind(dt_grad,aux_grad_dt)
   }
 }
 
-save(list=c("images","vectors","labels","dt"),file="img_vec_lab.Rdata")
+save(list=c("images","vectors","labels","dt","dt_grad","grey_images","im_gradients"),file="img_vec_lab.Rdata")
 
 foo=as.cimg(t(grey_image))
 plot(foo)
