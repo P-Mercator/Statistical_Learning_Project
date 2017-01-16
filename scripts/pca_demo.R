@@ -8,6 +8,7 @@
   #run pca
   im_pca=prcomp(dt,retx=T,center=T,scale=T,rank.=50)
   #summary(im_pca)
+  grad_pca=prcomp(dt_grad,retx=T,center=T,scale=T,rank.=50)
   
   #pick the 15 first components
   foo=as.data.table(cbind(
@@ -35,7 +36,32 @@
     im_pca$x[,22],
     im_pca$x[,23],
     im_pca$x[,24],
-    im_pca$x[,25]))
+    im_pca$x[,25],
+    grad_pca$x[,1],
+    grad_pca$x[,2],
+    grad_pca$x[,3],
+    grad_pca$x[,4],
+    grad_pca$x[,5],
+    grad_pca$x[,6],
+    grad_pca$x[,7],
+    grad_pca$x[,8],
+    grad_pca$x[,9],
+    grad_pca$x[,10],
+    grad_pca$x[,11],
+    grad_pca$x[,12],
+    grad_pca$x[,13],
+    grad_pca$x[,14],
+    grad_pca$x[,15],
+    grad_pca$x[,16],
+    grad_pca$x[,17],
+    grad_pca$x[,18],
+    grad_pca$x[,19],
+    grad_pca$x[,20],
+    grad_pca$x[,21],
+    grad_pca$x[,22],
+    grad_pca$x[,23],
+    grad_pca$x[,24],
+    grad_pca$x[,25]))
   
   foo[,label:=labels]
 
@@ -240,3 +266,5 @@ head(out)
 
 ggplot(out, aes(y=ACC,x=nodesize, group = N_PC, colour = N_PC)) +
   geom_path(alpha = 0.5)
+
+
