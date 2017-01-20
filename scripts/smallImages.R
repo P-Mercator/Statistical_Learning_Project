@@ -35,7 +35,7 @@ for (folder in folders){
 
     grey_image=0.299*image@red + 0.587*image@green + 0.114*image@blue
     
-    grey_image <- resize(grey_image,w=35,h=23)
+    grey_image <- resize(grey_image,w=28,h=28)
     img_vector=as.vector(t(grey_image))
     vec <- c(folder,img_vector)
     
@@ -46,6 +46,8 @@ for (folder in folders){
 
 row.names(rs_df) <- 1:length(rs_df[,1])
 rs_df <- as.data.frame(rs_df)
-names(rs_df) <- c("label", paste("pixel", c(1:(35*23))))
+names(rs_df) <- c("label", paste("pixel", c(1:(28*28))))
 
-write.csv(rs_df,"./Data/train.csv")
+write.csv(rs_df,"./Data/train_28.csv", row.names = FALSE)
+
+plot(as.cimg(t(grey_image)))
