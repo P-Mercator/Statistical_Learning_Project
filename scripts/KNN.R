@@ -7,8 +7,11 @@ normalize <- function(x) {
 
 knn_n <- as.data.frame(lapply(dt[,1:100], normalize))
 summary(knn_n)
+knn_n=as.data.table(knn_n)
+cols=names(knn_n)
+knn_n=knn_n[,(cols):=lapply(.SD, as.double),.SDcols=cols]
 
-dt_knn_n <- as.data.frame(cbind(labels,knn_n))
+dt_knn_n <- (cbind(labels,knn_n))
 
 
 
@@ -22,8 +25,8 @@ test_knn <- dt_knn_n[-sub, ]
 dim(train_knn)
 dim(test_knn)
 
-knn_train_labels <- train_knn[, 1]
-knn_test_labels <- test_knn[, 1]
+knn_train_labels <- train_knn[, labels]
+knn_test_labels <- test_knn[, labels]
 
 length(knn_train_labels)
 
@@ -35,7 +38,14 @@ length(knn_train_labels)
 
 library(class)
 
-knn_test_pred <- knn(train = train_knn, test = test_knn, cl = knn_train_labels, k=60)
+features=cols[grepl("V",cols)]
+
+knn_test_pred <- knn(train = train_knn[,features,with=F], test = test_knn[,features,with=F], cl = knn_train_labels, k=5)
+
+test_knn[,prediction:=knn_test_pred]
+
+#accuracy
+100*test_knn[labels==knn_test_pred,.N] / test_knn[,.N]
 
 ## sum(is.na.data.frame(dt_knn_n))
 
