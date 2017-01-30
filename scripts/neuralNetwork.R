@@ -5,12 +5,13 @@ rm(list=ls())
 ## rs_df <- cbind(labels,dt)
 
 rs_df <- read.csv("./Data/train_28.csv")
+## rs_df <- read.csv("./Data/train_64.csv")
 
-rows <- length(rs_df[,1])
-shuffled <- rs_df[sample(1:rows),]
 
-train <- shuffled[1:round(0.9*rows),]
-test <- shuffled[(round(0.9*rows)+1):rows,]
+library(caret)
+Train <- createDataPartition(rs_df[,1], p=0.9, list=FALSE)
+train <- rs_df[ Train, ]
+test <- rs_df[ -Train, ]
 
 require(mxnet)
 
@@ -65,9 +66,9 @@ model <- mx.model.FeedForward.create(NN_model,
                                      X = train_array,
                                      y = train_y,
                                      ctx = devices,
-                                     num.round = 480,
+                                     num.round = 25,
                                      array.batch.size = 40,
-                                     learning.rate = 0.01,
+                                     learning.rate = 0.02,
                                      momentum = 0.9,
                                      eval.metric = mx.metric.accuracy,
                                      epoch.end.callback = mx.callback.log.train.metric(100))
@@ -80,5 +81,6 @@ predicted <- predict(model, test_array)
 # Assign labels
 predicted_labels <- max.col(t(predicted)) - 1
 # Get accuracy
-sum(diag(table(test[, 1], predicted_labels)))/40
+table(test[, 1], predicted_labels)
+sum(diag(table(test[, 1], predicted_labels)))/dim(test)[1]
 

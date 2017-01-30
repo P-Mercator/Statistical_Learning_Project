@@ -18,8 +18,8 @@ grad_pca=prcomp(pixels.grad,retx=T,center=T,scale=T,rank.=50)
 grey.PCA <- as.data.table(cbind(im_pca$x[,1:25]))
 gradient.PCA <- as.data.table(cbind(grad_pca$x[,1:25]))
 
-# Remove outliers in PC1 of gradient
-outlierKD(gradient.PCA,PC1)
+# Remove outliers in PC1 of gradient. Function is at bottom of the script
+# outlierKD(gradient.PCA,PC1)
 gradient.PCA<- subset(gradient.PCA, gradient.PCA$PC1 > -4)
 
 # Label data
@@ -44,7 +44,7 @@ ggplot(data=gradient.PCA,aes(x=PC1,y=PC2))+
                                         # ###################### #
 
 #train-test indeces
-train_idx=sample(1:nrow(gradient.PCA),3374)
+train_idx=sample(1:nrow(gradient.PCA),round(nrow(gradient.PCA)*0.9))
 test_idx=(1:nrow(gradient.PCA))[!(1:nrow(gradient.PCA))%in%train_idx]
 
 #train a random Forest
@@ -292,6 +292,92 @@ test_knn[,prediction:=knn_test_pred]
                                         # Logistic regression #
                                         # ################### #
 
+################
+# Prepare for 1 vs All
+
+gradient.PCA$A = 0
+gradient.PCA$A[gradient.PCA$label == "A"] <- 1
+gradient.PCA$B = 0
+gradient.PCA$B[gradient.PCA$label == "B"] <- 1
+gradient.PCA$C = 0
+gradient.PCA$C[gradient.PCA$label == "C"] <- 1
+gradient.PCA$Point = 0
+gradient.PCA$Point[gradient.PCA$label == "Point"] <- 1
+gradient.PCA$V = 0
+gradient.PCA$V[gradient.PCA$label == "V"] <- 1
+
+library(caret)
+Train <- createDataPartition(gradient.PCA$label, p=0.9, list=FALSE)
+training <- gradient.PCA[ Train, ]
+testing <- gradient.PCA[ -Train, ]
+
+
+
+###################################################
+
+
+train_class <- function(y, Y) { # y is the name of the columns, Y is the label in test
+  
+  f <- substitute(glm(y~ PC1 + PC2 + PC3 + PC4 + PC5 + PC6 + PC7 + PC8 + PC9 + PC10
+                         + PC11 + PC12 + PC13 + PC14 + PC15 + PC16 + PC17 + PC18 + PC19 + PC20
+                         + PC21 + PC22 + PC23 + PC24 + PC25, 
+                      data=training, 
+                      family=binomial))
+
+  model = eval(f) # in order to be able to pass values to glm inside a function
+  
+  fitted.results <- predict(model, 
+                            newdata=subset(testing),
+                            type='response')
+  
+  fitted.results <- ifelse(fitted.results > 0.45,1,0)
+  
+  misClasificError <- mean(fitted.results != Y)
+  
+  print(paste('Accuracy',1-misClasificError))
+  
+  return (fitted.results) # returns the prediction for y vs all
+}
+
+
+results.A = train_class(A, testing$A)
+results.B = train_class(B, testing$B)
+results.C = train_class(C, testing$C)
+results.Point = train_class(Point, testing$Point)
+results.V = train_class(V, testing$V)
+
+print(table(gradient.PCA$label))
+
+
+results.label = 0
+results.label[results.Point == 1] = "Point"
+results.label[results.A == 1] = "A"
+results.label[results.B == 1] = "B"
+results.label[results.C == 1] = "C"
+results.label[results.V == 1] = "V"
+
+
+print(table(results.label, exclude = NULL))
+
+# Right now there are a lot of NA (instances that have not been classified)
+# I can substitute them by the most common label... but...
+# Point is also the one with less accuracy when performing individual classification 1 vs All
+
+results.label[is.na(results.label)] = "Point"
+
+misClasificError <- mean(results.label != testing$label)
+
+print(paste('Accuracy',1-misClasificError))
+
+
+
+                                        # Neural Network #
+                                        # ############## #
+
+library(caret)
+Train <- createDataPartition(gradient.PCA$label, p=0.9, list=FALSE)
+training <- gradient.PCA[ Train, ]
+testing <- gradient.PCA[ -Train, ]
 
 
 
