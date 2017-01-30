@@ -329,47 +329,74 @@ train_class <- function(y, Y) { # y is the name of the columns, Y is the label i
   fitted.results <- predict(model, 
                             newdata=subset(testing),
                             type='response')
+  return(fitted.results)
   
-  fitted.results <- ifelse(fitted.results > 0.45,1,0)
+##   fitted.results <- ifelse(fitted.results > 0.45,1,0)
   
-  misClasificError <- mean(fitted.results != Y)
+##   misClasificError <- mean(fitted.results != Y)
   
-  print(paste('Accuracy',1-misClasificError))
+##   print(paste('Accuracy',1-misClasificError))
   
-  return (fitted.results) # returns the prediction for y vs all
+##   return (fitted.results) # returns the prediction for y vs all
 }
 
 
-results.A = train_class(A, testing$A)
-results.B = train_class(B, testing$B)
-results.C = train_class(C, testing$C)
-results.Point = train_class(Point, testing$Point)
-results.V = train_class(V, testing$V)
-
-print(table(gradient.PCA$label))
+results.A = train_class(A)
+results.B = train_class(B)
+results.C = train_class(C)
+results.Point = train_class(Point)
+results.V = train_class(V)
 
 
-results.label = 0
-results.label[results.Point == 1] = "Point"
-results.label[results.A == 1] = "A"
-results.label[results.B == 1] = "B"
-results.label[results.C == 1] = "C"
-results.label[results.V == 1] = "V"
+DF <- data.frame(A=results.A,
+                 B=results.B,
+                 C=results.C,
+                 V=results.V,
+                 Point=results.Point)
 
+results.label = colnames(DF)[apply(DF,1,which.max)]
+results.max_value = apply(DF,1,max)
 
-print(table(results.label, exclude = NULL))
+DF$label = results.label
+DF$max_value = results.max_value
 
-# Right now there are a lot of NA (instances that have not been classified)
-# I can substitute them by the most common label... but...
-# Point is also the one with less accuracy when performing individual classification 1 vs All
-
-results.label[is.na(results.label)] = "Point"
 
 misClasificError <- mean(results.label != testing$label)
 
 print(paste('Accuracy',1-misClasificError))
 
+table(results.label)
 
+mean(DF$Point[DF$label == "Point"])
+mean(DF$A[DF$label == "A"])
+mean(DF$B[DF$label == "B"])
+mean(DF$C[DF$label == "C"])
+mean(DF$V[DF$label == "V"])
+
+hist(DF$Point[DF$label == "Point"])
+hist(DF$A[DF$label == "A"])
+hist(DF$B[DF$label == "B"])
+hist(DF$C[DF$label == "C"])
+hist(DF$V[DF$label == "V"])
+
+hist(DF$max_value)
+
+DF$real = testing$label
+DF$success = (DF$label == DF$real)*1
+
+results.wrongs = DF$label[DF$label != DF$real]
+table(results.wrongs)
+
+wrongs.A = DF$real[DF$success == 0 & DF$label == "A"]
+table(wrongs.A)
+wrongs.B = DF$real[DF$success == 0 & DF$label == "B"]
+table(wrongs.B)
+wrongs.C = DF$real[DF$success == 0 & DF$label == "C"]
+table(wrongs.C)
+wrongs.V = DF$real[DF$success == 0 & DF$label == "V"]
+table(wrongs.V)
+wrongs.Point = DF$real[DF$success == 0 & DF$label == "Point"]
+table(wrongs.Point)
 
                                         # Neural Network #
                                         # ############## #
