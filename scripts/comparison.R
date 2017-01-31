@@ -27,13 +27,25 @@ labels <- grey_df[,1]
 gradient.PCA[,label:=labels]
 grey.PCA[,label:=labels]
 
+vars <- apply(im_pca$x, 2, var) 
+props <- vars / sum(vars)
+cumsum(props)
+plot(props[1:15])
+lines(props[1:15])
+vars <- apply(grad_pca$x, 2, var) 
+props <- vars / sum(vars)
+cumsum(props)
+plot(props[1:15])
+lines(props[1:15])
+
 # Plot 2 first PC
 ggplot(data=grey.PCA,aes(x=PC1,y=PC2))+
   geom_point(aes(colour=as.factor(label)), alpha = 2/10)
+ggsave("figures/greyCluster.png")
 
 ggplot(data=gradient.PCA,aes(x=PC1,y=PC2))+
   geom_point(aes(colour=as.factor(label)), alpha = 2/10)
-
+ggsave("figures/gradientCluster.png")
 
                                         # ####### #
                                         # Analyis #
@@ -44,31 +56,31 @@ ggplot(data=gradient.PCA,aes(x=PC1,y=PC2))+
                                         # ###################### #
 
 #train-test indeces
-train_idx=sample(1:nrow(gradient.PCA),round(nrow(gradient.PCA)*0.9))
-test_idx=(1:nrow(gradient.PCA))[!(1:nrow(gradient.PCA))%in%train_idx]
+train_idx=sample(1:nrow(grey.PCA),round(nrow(grey.PCA)*0.9))
+test_idx=(1:nrow(grey.PCA))[!(1:nrow(grey.PCA))%in%train_idx]
 
 #train a random Forest
 library(randomForest)
 im_rf=randomForest(as.factor(label) ~ PC1 + PC2 + PC3 + PC4 + PC5 + PC6 +
-                     PC7 + PC8 + PC9 + PC10 + PC11 + PC12 + PC13 + PC14 + PC15,data=gradient.PCA[train_idx],importance=T)
+                     PC7 + PC8 + PC9 + PC10 + PC11 + PC12 + PC13 + PC14 + PC15,data=grey.PCA[train_idx],importance=T)
 #show the importances
 importance(im_rf)
 
 #predict on the test set
-gradient.PCA[test_idx,prediction:=predict(im_rf, gradient.PCA[test_idx])]
+grey.PCA[test_idx,prediction:=predict(im_rf, grey.PCA[test_idx])]
 
-#gradient.PCA[test_idx,.N]
-#gradient.PCA[test_idx][,list(label,prediction)]
-gradient.PCA[test_idx][,sum(label!=prediction)/.N] #error prediction, arrond 15%ish #same test with SPCM
+#grey.PCA[test_idx,.N]
+#grey.PCA[test_idx][,list(label,prediction)]
+grey.PCA[test_idx][,sum(label!=prediction)/.N] #error prediction, arrond 15%ish #same test with SPCM
 library(e1071)
 
 im_svm=svm(as.factor(label) ~ PC1 + PC2 + PC3 + PC4 + PC5 + PC6 +
-      PC7 + PC8 + PC9 + PC10 + PC11 + PC12 + PC13 + PC14 + PC15,data=gradient.PCA[train_idx], scale = TRUE, type = NULL, kernel ="radial")
+      PC7 + PC8 + PC9 + PC10 + PC11 + PC12 + PC13 + PC14 + PC15,data=grey.PCA[train_idx], scale = TRUE, type = NULL, kernel ="radial")
 
-svm_pred=predict(im_svm, gradient.PCA[test_idx], decision.values = TRUE)
+svm_pred=predict(im_svm, grey.PCA[test_idx], decision.values = TRUE)
 
-gradient.PCA[test_idx,prediction:=svm_pred]
-gradient.PCA[test_idx][,sum(label!=prediction)/.N]
+grey.PCA[test_idx,prediction:=svm_pred]
+grey.PCA[test_idx][,sum(label!=prediction)/.N]
 
 #SPCM performs slightly worse with default hyper parameters
 
@@ -205,6 +217,8 @@ for (param_idx in 1:length(RF_nodesize)){
     #predict on cv_test
     cv_test[,aux_pred:=predict(aux_mod,cv_test)]
     
+table(cv_test$label, cv_test$aux_pred)
+    
     #evaluate performance on the cv_test, use the accuracy
     aux_acc=cv_test[,sum(label==aux_pred)/.N]
     
@@ -226,7 +240,7 @@ head(out)
 
 ggplot(out, aes(y=ACC,x=nodesize, group = N_PC, colour = N_PC)) +
   geom_path(alpha = 0.5)
-
+ggsave("./figures/gradientRF.png")
 
                                         # K Nearest Neighbours #
                                         # #################### #

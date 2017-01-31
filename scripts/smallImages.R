@@ -5,9 +5,9 @@ require(raster)
 library(imager)
 library(EBImage)
 
-path_folders="./Data/Marcel-Train"
+## path_folders="./Data/Marcel-Train"
 
-## path_folders="./Data/test"
+path_folders="./Data/test"
 folders=list.files(path = path_folders)
 
 ## folders=folders[folders!="Five"] #the five is quite broken
@@ -55,7 +55,7 @@ row.names(gradient_df) <- 1:length(gradient_df[,1])
 gradient_df <- as.data.frame(gradient_df)
 names(gradient_df) <- c("label", paste("pixel", c(1:(size*size))))
 
-save(grey_df,gradient_df,file="./img_train_50.Rdata")
+## save(grey_df,gradient_df,file="./img_train_50.Rdata")
 
 
 ###### TEST

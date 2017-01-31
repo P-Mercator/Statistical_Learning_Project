@@ -84,3 +84,4 @@ predicted_labels <- max.col(t(predicted)) - 1
 table(test[, 1], predicted_labels)
 sum(diag(table(test[, 1], predicted_labels)))/dim(test)[1]
 
+table(c(1,2,3),c(4,5,6))
