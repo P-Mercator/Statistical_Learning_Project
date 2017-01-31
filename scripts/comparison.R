@@ -303,6 +303,7 @@ test_knn[,prediction:=knn_test_pred]
 
 
 
+                                        # ################### #
                                         # Logistic regression #
                                         # ################### #
 
@@ -315,10 +316,13 @@ gradient.PCA$B = 0
 gradient.PCA$B[gradient.PCA$label == "B"] <- 1
 gradient.PCA$C = 0
 gradient.PCA$C[gradient.PCA$label == "C"] <- 1
-gradient.PCA$Point = 0
-gradient.PCA$Point[gradient.PCA$label == "Point"] <- 1
 gradient.PCA$V = 0
 gradient.PCA$V[gradient.PCA$label == "V"] <- 1
+gradient.PCA$Five = 0
+gradient.PCA$Five[gradient.PCA$label == "Five"] <- 1
+gradient.PCA$Point = 0
+gradient.PCA$Point[gradient.PCA$label == "Point"] <- 1
+
 
 library(caret)
 Train <- createDataPartition(gradient.PCA$label, p=0.9, list=FALSE)
@@ -330,7 +334,7 @@ testing <- gradient.PCA[ -Train, ]
 ###################################################
 
 
-train_class <- function(y, Y) { # y is the name of the columns, Y is the label in test
+train_class <- function(y) { # y is the name of the columns
   
   f <- substitute(glm(y~ PC1 + PC2 + PC3 + PC4 + PC5 + PC6 + PC7 + PC8 + PC9 + PC10
                          + PC11 + PC12 + PC13 + PC14 + PC15 + PC16 + PC17 + PC18 + PC19 + PC20
@@ -344,29 +348,27 @@ train_class <- function(y, Y) { # y is the name of the columns, Y is the label i
                             newdata=subset(testing),
                             type='response')
   return(fitted.results)
-  
-##   fitted.results <- ifelse(fitted.results > 0.45,1,0)
-  
-##   misClasificError <- mean(fitted.results != Y)
-  
-##   print(paste('Accuracy',1-misClasificError))
-  
-##   return (fitted.results) # returns the prediction for y vs all
 }
+
 
 
 results.A = train_class(A)
 results.B = train_class(B)
 results.C = train_class(C)
-results.Point = train_class(Point)
 results.V = train_class(V)
+results.Five = train_class(Five)
+results.Point = train_class(Point)
+
+
 
 
 DF <- data.frame(A=results.A,
                  B=results.B,
                  C=results.C,
                  V=results.V,
+                 Five=results.Five,
                  Point=results.Point)
+
 
 results.label = colnames(DF)[apply(DF,1,which.max)]
 results.max_value = apply(DF,1,max)
@@ -379,6 +381,13 @@ misClasificError <- mean(results.label != testing$label)
 
 print(paste('Accuracy',1-misClasificError))
 
+CrossTable(x=testing$label, y=results.label, prop.chisq=FALSE)
+
+
+
+
+
+
 table(results.label)
 
 mean(DF$Point[DF$label == "Point"])
@@ -387,11 +396,15 @@ mean(DF$B[DF$label == "B"])
 mean(DF$C[DF$label == "C"])
 mean(DF$V[DF$label == "V"])
 
-hist(DF$Point[DF$label == "Point"])
-hist(DF$A[DF$label == "A"])
-hist(DF$B[DF$label == "B"])
-hist(DF$C[DF$label == "C"])
-hist(DF$V[DF$label == "V"])
+
+par(mfrow=c(3,2))
+hist(DF$Point[DF$label == "Point"], main='"Point" instances', xlab='Probability')
+hist(DF$A[DF$label == "A"], main='"A" instances', xlab='Probability')
+hist(DF$B[DF$label == "B"], main='"B" instances', xlab='Probability')
+hist(DF$C[DF$label == "C"], main='"C instances', xlab='Probability')
+hist(DF$V[DF$label == "V"], main='"V" instances', xlab='Probability')
+hist(DF$Five[DF$label == "Five"], main='"Five" instances', xlab='Probability')
+
 
 hist(DF$max_value)
 
@@ -409,8 +422,12 @@ wrongs.C = DF$real[DF$success == 0 & DF$label == "C"]
 table(wrongs.C)
 wrongs.V = DF$real[DF$success == 0 & DF$label == "V"]
 table(wrongs.V)
+hist(table(wrongs.V))
 wrongs.Point = DF$real[DF$success == 0 & DF$label == "Point"]
 table(wrongs.Point)
+wrongs.Five = DF$real[DF$success == 0 & DF$label == "Five"]
+table(wrongs.Five)
+
 
                                         # Neural Network #
                                         # ############## #
