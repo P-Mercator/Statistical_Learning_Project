@@ -1,6 +1,6 @@
 # Statistical_Learning_Project
 
-The repository was created in order four our team of 4 Big Data Analytics graduate students to share ideas and code to complete the main and only assignment of our Statistical Learning course. You can find a copy report in [HERE](./Image_recognition-Report.pdf)
+The repository was created in order for our team of 4 Big Data Analytics graduate students to share ideas and code to complete the main and only assignment of our Statistical Learning course. You can find a copy report in [HERE](./Image_recognition-Report.pdf)
 
 ## Goal
 
